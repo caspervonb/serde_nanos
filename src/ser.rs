@@ -22,6 +22,31 @@ impl Serialize for std::time::Duration {
     }
 }
 
+impl Serialize for Option<std::time::Duration> {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        struct Data<'a, V: 'a>(&'a V)
+        where
+            V: Serialize;
+
+        impl<'a, V: Serialize + 'a> serde::Serialize for Data<'a, V> {
+            fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+            where
+                S: Serializer,
+            {
+                self.0.serialize(serializer)
+            }
+        }
+
+        match *self {
+            Some(ref value) => serializer.serialize_some(&Data(value)),
+            None => serializer.serialize_none(),
+        }
+    }
+}
+
 #[cfg(feature = "chrono")]
 impl Serialize for chrono::Duration {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -30,5 +55,31 @@ impl Serialize for chrono::Duration {
     {
         let nanoseconds = self.num_nanoseconds().unwrap();
         serializer.serialize_i64(nanoseconds)
+    }
+}
+
+#[cfg(feature = "chrono")]
+impl Serialize for Option<chrono::Duration> {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        struct Data<'a, V: 'a>(&'a V)
+        where
+            V: Serialize;
+
+        impl<'a, V: Serialize + 'a> serde::Serialize for Data<'a, V> {
+            fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+            where
+                S: Serializer,
+            {
+                self.0.serialize(serializer)
+            }
+        }
+
+        match *self {
+            Some(ref value) => serializer.serialize_some(&Data(value)),
+            None => serializer.serialize_none(),
+        }
     }
 }
