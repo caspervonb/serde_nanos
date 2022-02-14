@@ -1,10 +1,11 @@
 use std::fmt;
 use std::marker::PhantomData;
+use std::time::Duration;
 
 #[cfg(feature = "chrono")]
 use chrono;
 
-use serde::de::{Error, Visitor};
+use serde::de::{Error, SeqAccess, Visitor};
 use serde::Deserializer;
 
 /// Types that can be deserialized via `#[serde(with = "serde_nanos")]`.
@@ -67,6 +68,38 @@ impl<'de> Deserialize<'de> for Option<std::time::Duration> {
         }
 
         deserializer.deserialize_option(OptionVisitor {
+            marker: PhantomData,
+        })
+    }
+}
+
+impl<'de> Deserialize<'de> for Vec<std::time::Duration> {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        struct VecVisitor {
+            marker: PhantomData<Vec<Duration>>,
+        }
+        impl<'de> Visitor<'de> for VecVisitor {
+            type Value = Vec<Duration>;
+
+            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+                write!(formatter, "array of durations in nanoseconds")
+            }
+
+            fn visit_seq<S>(self, mut visitor: S) -> Result<Self::Value, S::Error>
+            where
+                S: SeqAccess<'de>,
+            {
+                let mut seq = Vec::with_capacity(visitor.size_hint().unwrap_or(0));
+                while let Some(elem) = visitor.next_element()? {
+                    seq.push(Duration::from_nanos(elem));
+                }
+                Ok(seq)
+            }
+        }
+        deserializer.deserialize_seq(VecVisitor {
             marker: PhantomData,
         })
     }

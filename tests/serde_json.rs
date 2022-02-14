@@ -1,6 +1,3 @@
-use serde;
-use serde_json;
-
 #[cfg(feature = "chrono")]
 mod std_time {
     use serde_derive::{Deserialize, Serialize};
@@ -16,6 +13,23 @@ mod std_time {
     struct Optional {
         #[serde(default, with = "serde_nanos")]
         duration: Option<Duration>,
+    }
+
+    #[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+    struct Vectored {
+        #[serde(default, with = "serde_nanos")]
+        durations: Vec<Duration>,
+    }
+
+    #[test]
+    fn vector_of_durations() {
+        let given = Vectored {
+            durations: vec![Duration::from_secs(10), Duration::from_secs(5)],
+        };
+        let serialized = serde_json::to_string(&given).unwrap();
+
+        let actual: Vectored = serde_json::from_str(serialized.as_ref()).unwrap();
+        assert_eq!(given, actual);
     }
 
     #[test]

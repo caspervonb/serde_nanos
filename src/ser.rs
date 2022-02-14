@@ -1,7 +1,7 @@
 #[cfg(feature = "chrono")]
 use chrono;
 
-use serde::ser::Error;
+use serde::ser::SerializeSeq;
 use serde::Serializer;
 
 /// Types that can be serialized via `#[serde(with = "serde_nanos")]`.
@@ -44,6 +44,20 @@ impl Serialize for Option<std::time::Duration> {
             Some(ref value) => serializer.serialize_some(&Data(value)),
             None => serializer.serialize_none(),
         }
+    }
+}
+
+impl Serialize for Vec<std::time::Duration> {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        println!("LEN: {}", self.len());
+        let mut seq = serializer.serialize_seq(Some(self.len()))?;
+        for e in self {
+            seq.serialize_element(&e.as_nanos())?;
+        }
+        seq.end()
     }
 }
 
