@@ -1,7 +1,3 @@
-use serde;
-use serde_json;
-
-#[cfg(feature = "chrono")]
 mod std_time {
     use serde_derive::{Deserialize, Serialize};
     use std::time::Duration;
@@ -16,6 +12,12 @@ mod std_time {
     struct Optional {
         #[serde(default, with = "serde_nanos")]
         duration: Option<Duration>,
+    }
+
+    #[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+    struct Vectored {
+        #[serde(default, with = "serde_nanos")]
+        durations: Vec<Duration>,
     }
 
     #[test]
@@ -67,6 +69,26 @@ mod std_time {
         };
 
         assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn vector_of_durations() {
+        let given = Vectored {
+            durations: vec![Duration::from_nanos(500), Duration::from_secs(15)],
+        };
+        let serialized = serde_json::to_string(&given).unwrap();
+
+        let actual: Vectored = serde_json::from_str(serialized.as_ref()).unwrap();
+        assert_eq!(given, actual);
+
+        // Empty vector case.
+        let given = Vectored {
+            durations: Vec::new(),
+        };
+        let serialized = serde_json::to_string(&given).unwrap();
+
+        let actual: Vectored = serde_json::from_str(serialized.as_ref()).unwrap();
+        assert_eq!(given, actual);
     }
 }
 
@@ -136,5 +158,25 @@ mod chrono {
         };
 
         assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn vector_of_durations() {
+        let given = Vectored {
+            durations: vec![Duration::from_nanos(500), Duration::from_secs(15)],
+        };
+        let serialized = serde_json::to_string(&given).unwrap();
+
+        let actual: Vectored = serde_json::from_str(serialized.as_ref()).unwrap();
+        assert_eq!(given, actual);
+
+        // Empty vector case.
+        let given = Vectored {
+            durations: Vec::new(),
+        };
+        let serialized = serde_json::to_string(&given).unwrap();
+
+        let actual: Vectored = serde_json::from_str(serialized.as_ref()).unwrap();
+        assert_eq!(given, actual);
     }
 }
