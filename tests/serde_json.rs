@@ -21,26 +21,6 @@ mod std_time {
     }
 
     #[test]
-    fn vector_of_durations() {
-        let given = Vectored {
-            durations: vec![Duration::from_nanos(500), Duration::from_secs(15)],
-        };
-        let serialized = serde_json::to_string(&given).unwrap();
-
-        let actual: Vectored = serde_json::from_str(serialized.as_ref()).unwrap();
-        assert_eq!(given, actual);
-
-        // Empty vector case.
-        let given = Vectored {
-            durations: Vec::new(),
-        };
-        let serialized = serde_json::to_string(&given).unwrap();
-
-        let actual: Vectored = serde_json::from_str(serialized.as_ref()).unwrap();
-        assert_eq!(given, actual);
-    }
-
-    #[test]
     fn zero_nanosecond_duration_from_str() {
         let actual = serde_json::from_str::<Payload>(r#"{ "duration": 0 }"#).unwrap();
         let expected = Payload {
@@ -89,6 +69,26 @@ mod std_time {
         };
 
         assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn vector_of_durations() {
+        let given = Vectored {
+            durations: vec![Duration::from_nanos(500), Duration::from_secs(15)],
+        };
+        let serialized = serde_json::to_string(&given).unwrap();
+
+        let actual: Vectored = serde_json::from_str(serialized.as_ref()).unwrap();
+        assert_eq!(given, actual);
+
+        // Empty vector case.
+        let given = Vectored {
+            durations: Vec::new(),
+        };
+        let serialized = serde_json::to_string(&given).unwrap();
+
+        let actual: Vectored = serde_json::from_str(serialized.as_ref()).unwrap();
+        assert_eq!(given, actual);
     }
 }
 
@@ -158,5 +158,25 @@ mod chrono {
         };
 
         assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn vector_of_durations() {
+        let given = Vectored {
+            durations: vec![Duration::from_nanos(500), Duration::from_secs(15)],
+        };
+        let serialized = serde_json::to_string(&given).unwrap();
+
+        let actual: Vectored = serde_json::from_str(serialized.as_ref()).unwrap();
+        assert_eq!(given, actual);
+
+        // Empty vector case.
+        let given = Vectored {
+            durations: Vec::new(),
+        };
+        let serialized = serde_json::to_string(&given).unwrap();
+
+        let actual: Vectored = serde_json::from_str(serialized.as_ref()).unwrap();
+        assert_eq!(given, actual);
     }
 }

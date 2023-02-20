@@ -163,3 +163,36 @@ impl<'de> Deserialize<'de> for Option<chrono::Duration> {
         })
     }
 }
+
+#[cfg(feature = "chrono")]
+impl<'de> Deserialize<'de> for Vec<chrono::Duration> {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        struct VecVisitor {
+            marker: PhantomData<Vec<Duration>>,
+        }
+        impl<'de> Visitor<'de> for VecVisitor {
+            type Value = Vec<Duration>;
+
+            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+                formatter.write_str("array of durations in nanoseconds")
+            }
+
+            fn visit_seq<S>(self, mut visitor: S) -> Result<Self::Value, S::Error>
+            where
+                S: SeqAccess<'de>,
+            {
+                let mut durations = Vec::with_capacity(visitor.size_hint().unwrap_or(0));
+                while let Some(elem) = visitor.next_element()? {
+                    durations.push(Duration::from_nanos(elem));
+                }
+                Ok(durations)
+            }
+        }
+        deserializer.deserialize_seq(VecVisitor {
+            marker: PhantomData,
+        })
+    }
+}
