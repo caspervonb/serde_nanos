@@ -1,4 +1,3 @@
-#[cfg(feature = "chrono")]
 mod std_time {
     use serde_derive::{Deserialize, Serialize};
     use std::time::Duration;
@@ -24,7 +23,16 @@ mod std_time {
     #[test]
     fn vector_of_durations() {
         let given = Vectored {
-            durations: vec![Duration::from_secs(10), Duration::from_secs(5)],
+            durations: vec![Duration::from_nanos(500), Duration::from_secs(15)],
+        };
+        let serialized = serde_json::to_string(&given).unwrap();
+
+        let actual: Vectored = serde_json::from_str(serialized.as_ref()).unwrap();
+        assert_eq!(given, actual);
+
+        // Empty vector case.
+        let given = Vectored {
+            durations: Vec::new(),
         };
         let serialized = serde_json::to_string(&given).unwrap();
 

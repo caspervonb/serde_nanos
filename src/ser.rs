@@ -52,7 +52,6 @@ impl Serialize for Vec<std::time::Duration> {
     where
         S: Serializer,
     {
-        println!("LEN: {}", self.len());
         let mut seq = serializer.serialize_seq(Some(self.len()))?;
         for e in self {
             seq.serialize_element(&e.as_nanos())?;

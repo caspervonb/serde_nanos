@@ -85,18 +85,18 @@ impl<'de> Deserialize<'de> for Vec<std::time::Duration> {
             type Value = Vec<Duration>;
 
             fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-                write!(formatter, "array of durations in nanoseconds")
+                formatter.write_str("array of durations in nanoseconds")
             }
 
             fn visit_seq<S>(self, mut visitor: S) -> Result<Self::Value, S::Error>
             where
                 S: SeqAccess<'de>,
             {
-                let mut seq = Vec::with_capacity(visitor.size_hint().unwrap_or(0));
+                let mut durations = Vec::with_capacity(visitor.size_hint().unwrap_or(0));
                 while let Some(elem) = visitor.next_element()? {
-                    seq.push(Duration::from_nanos(elem));
+                    durations.push(Duration::from_nanos(elem));
                 }
-                Ok(seq)
+                Ok(durations)
             }
         }
         deserializer.deserialize_seq(VecVisitor {
