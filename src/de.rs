@@ -1,6 +1,5 @@
 use std::fmt;
 use std::marker::PhantomData;
-use std::time::Duration;
 
 #[cfg(feature = "chrono")]
 use chrono;
@@ -79,10 +78,10 @@ impl<'de> Deserialize<'de> for Vec<std::time::Duration> {
         D: Deserializer<'de>,
     {
         struct VecVisitor {
-            marker: PhantomData<Vec<Duration>>,
+            marker: PhantomData<Vec<std::time::Duration>>,
         }
         impl<'de> Visitor<'de> for VecVisitor {
-            type Value = Vec<Duration>;
+            type Value = Vec<std::time::Duration>;
 
             fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
                 formatter.write_str("array of durations in nanoseconds")
@@ -94,7 +93,7 @@ impl<'de> Deserialize<'de> for Vec<std::time::Duration> {
             {
                 let mut durations = Vec::with_capacity(visitor.size_hint().unwrap_or(0));
                 while let Some(elem) = visitor.next_element()? {
-                    durations.push(Duration::from_nanos(elem));
+                    durations.push(std::time::Duration::from_nanos(elem));
                 }
                 Ok(durations)
             }
